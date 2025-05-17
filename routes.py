@@ -6,8 +6,7 @@ import openai_client
 router = APIRouter()
 
 @router.get("/analyze-pr")
-def analyze_pr(pr_url: str = Query(..., description="GitHub pull request URL"), auto_close: bool = Query(True)):
-
+def analyze_pr(pr_url: str = Query(..., description="GitHub pull request URL"), auto_comment: bool = Query(True)):
     owner, repo, pr_number = github_client.parse_pr_url(pr_url)
     if not owner or not repo or not pr_number:
         return JSONResponse(status_code=400, content={"error": "Invalid PR URL"})
@@ -44,18 +43,12 @@ def analyze_pr(pr_url: str = Query(..., description="GitHub pull request URL"), 
 
     is_meaningful = "4. Yes" in summary
 
-    if auto_close and not is_meaningful:
-        comment = "🤖 This PR was automatically reviewed and marked as *not meaningful* (e.g., trivial or cosmetic change). Closing to reduce noise. Please reopen with more substantive changes."
-        github_client.comment_on_pr(owner, repo, pr_number, comment)
-        close_resp = github_client.close_pr(owner, repo, pr_number)
-        if close_resp.status_code == 200:
-            summary += "\n\n🚫 PR was automatically closed due to trivial or non-meaningful changes."
-        else:
-            summary += f"\n\n⚠️ Attempted to close PR but failed: {close_resp.status_code}"
-
-    if is_meaningful:
+    if auto_comment:
+        comment_body = (
+            f"### 🤖 Automated PR Review\n\n{summary}\n\n"
+        )
         try:
-            github_client.comment_on_pr(owner, repo, pr_number, f"### 🤖 Automated PR Review\n\n{summary}")
+            github_client.comment_on_pr(owner, repo, pr_number, comment_body)
         except Exception as e:
             print(f"⚠️ Exception while posting summary comment: {e}")
 
