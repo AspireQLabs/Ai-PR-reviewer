@@ -10,7 +10,7 @@ You are an expert code reviewer. Analyze the GitHub pull request and its diff. P
 1. What does this PR change and why?
 2. Are there any risks, bugs, or concerns?
 3. Do you suggest any improvements?
-4. Is this PR meaningful? Only answer yes or no.
+4. Is this PR meaningful? Only answer The PR is meaningful or No the PR is not meaningful.
 
 No partial meaningfulness!
 
