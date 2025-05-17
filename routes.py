@@ -46,12 +46,10 @@ def analyze_pr(pr_url: str = Query(..., description="GitHub pull request URL"), 
     if auto_comment:
         comment_body = (
             f"### 🤖 Automated PR Review\n\n{summary}\n\n"
-            + ("✅ This PR is meaningful and substantive." if is_meaningful else "⚠️ This PR appears to be trivial or not meaningful.")
         )
         try:
             github_client.comment_on_pr(owner, repo, pr_number, comment_body)
         except Exception as e:
             print(f"⚠️ Exception while posting summary comment: {e}")
 
-    return {"analysis": summary,
-            "is_pull_request_meaningful": is_meaningful}
+    return {"analysis": summary}
